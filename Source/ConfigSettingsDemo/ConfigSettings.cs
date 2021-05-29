@@ -47,10 +47,10 @@ namespace ConfigSettingsDemo
             T result = default;
 
             bool settingFound = _settings.TryGetValue(key, out string value);
-            errorMessage = $"{key} does not exist in settings.";
 
             if (!settingFound)
             {
+                errorMessage = $"Key '{key}' does not exist in settings.";
                 _exceptionHandler(errorMessage);
                 return result;
             }
@@ -64,15 +64,15 @@ namespace ConfigSettingsDemo
 
             try
             {
-                result = (T)converter.ConvertFromInvariantString(value);
+                errorMessage = string.Empty;
+                return (T)converter.ConvertFromInvariantString(value);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                errorMessage = $"Cannot convert {value} for key {key} to type {type}.";
+                errorMessage = $"Cannot convert '{value}' for key '{key}' to type '{type}'.";
                 _exceptionHandler(errorMessage);
+                return result;
             }
-
-            return result;
         }
     }
 }

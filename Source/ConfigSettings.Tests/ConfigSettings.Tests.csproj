@@ -20,4 +20,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ConfigSettingsDemo\ConfigSettingsDemo.csproj" />
+  </ItemGroup>
+
 </Project>
