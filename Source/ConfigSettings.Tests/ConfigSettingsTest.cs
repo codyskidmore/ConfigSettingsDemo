@@ -6,20 +6,13 @@ namespace ConfigSettings.Tests
 {
     public class ConfigSettingsTest
     {
-        private readonly ConfigSettingsDemo.ConfigSettings _configSettings = new ConfigSettingsDemo.ConfigSettings(new Dictionary<string, string>()
+        private readonly ConfigSettingsDemo.IConfigSettings _configSettings = new ConfigSettingsDemo.ConfigSettings
         {
             {"key1", "value1"},
             {"key2", "1"},
             {"key3", "false"},
             {"key4", "05/26/2021"},
-        });
-        private readonly ConfigSettingsDemo.ConfigSettings _configSettingsError = new ConfigSettingsDemo.ConfigSettings(new Dictionary<string, string>()
-        {
-            {"key1", "value1"},
-            {"key2", "1"},
-            {"key3", "false"},
-            {"key4", "05/26/2021"},
-        }, false);
+        };
 
         [Fact]
         public void TestStringValue()
@@ -61,7 +54,7 @@ namespace ConfigSettings.Tests
         {
             try
             {
-                var setting4 = _configSettings.GetValue<bool>("key1", out _);
+                var setting4 = _configSettings.GetValue<bool>("key1");
                 Assert.True(false);
             }
             catch (ArgumentException)
@@ -73,8 +66,8 @@ namespace ConfigSettings.Tests
         [Fact]
         public void TestReturnsCannotConvertErrorMessage()
         {
-            _configSettingsError.GetValue<bool>("key1", out string errorMessage);
-            Assert.Matches("Cannot convert 'value1' for key 'key1' to type 'System.Boolean'.", errorMessage);
+            _configSettings.GetValue<bool>("key1", out string errorMessage);
+            Assert.Matches("Error while converting from string to type 'System.Boolean' for key 'key1'.", errorMessage);
         }
 
         [Fact]
@@ -82,7 +75,7 @@ namespace ConfigSettings.Tests
         {
             try
             {
-                var setting4 = _configSettings.GetValue<bool>("key5", out _);
+                var setting4 = _configSettings.GetValue<bool>("key5");
                 Assert.True(false);
             }
             catch (ArgumentException)
@@ -92,9 +85,37 @@ namespace ConfigSettings.Tests
         }
 
         [Fact]
+        public void TestShouldReturnDefaultValueInsteadOfException()
+        {
+            try
+            {
+                var setting4 = _configSettings.GetValue("key5", 10);
+                Assert.True(true);
+            }
+            catch (ArgumentException)
+            {
+                Assert.True(false);
+            }
+        }
+
+        [Fact]
+        public void TestShouldReturnDefaultValueInsteadOfErrorMessage()
+        {
+            try
+            {
+                var setting4 = _configSettings.GetValue("key5", 10, out _);
+                Assert.True(true);
+            }
+            catch (ArgumentException)
+            {
+                Assert.True(false);
+            }
+        }
+
+        [Fact]
         public void TestReturnsNotFoundErrorMessage()
         {
-            _configSettingsError.GetValue<bool>("key5", out string errorMessage);
+            _configSettings.GetValue<bool>("key5", out string errorMessage);
             Assert.Matches("Key 'key5' does not exist in settings.", errorMessage);
         }
     }
